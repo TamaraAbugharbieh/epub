@@ -245,8 +245,8 @@ class DB:
         for record in cursor:
             print('ref_dictionary', record)
 
-    def tamaraPandas(self):
-        SQL = """SELECT * FROM {0}""".format(self.relational_db)
+    def tamaraPandas(self, selctedTable):
+        SQL = """SELECT * FROM {0}""".format(selctedTable)
         df_input = pd.read_sql(SQL, con=self.connection)
         return df_input
 

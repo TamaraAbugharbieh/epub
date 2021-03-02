@@ -162,26 +162,28 @@ from openpyxl import load_workbook
 # TODO: IMPORTS FIRST
 
 
-vals = [['CL_AGE_GROUP_EN_V1', None, '15 - 24'],
-        ['CL_AGE_GROUP_EN_V1', None, '25 - 29'],
-        ['CL_AGE_GROUP_EN_V1', None, '30 - 34'],
-        ['CL_AGE_GROUP_EN_V1', None, '35 - 39'],
-        ['CL_AGE_GROUP_EN_V1', None, '40 and Above'],
-        ['CL_AGE_GROUP_EN_V1', None, 'Total'],
-        ['CL_AGE_GROUP_AR_V1', None, '15 - 24'],
-        ['CL_AGE_GROUP_AR_V1', None, '25 - 29'],
-        ['CL_AGE_GROUP_AR_V1', None, '30 - 34'],
-        ['CL_AGE_GROUP_AR_V1', None, '35 - 39'],
-        ['CL_AGE_GROUP_AR_V1', None, '40 فـأعلـــى'],
-        ['CL_AGE_GROUP_AR_V1', None, 'الجملة '],
-        ['CL_SEX_AR_V1', None, 'ذكور'],
-        ['CL_SEX_AR_V1', None, 'إناث'],
-        ['CL_SEX_AR_V1', None, 'الجملة'],
-        ['CL_SEX_EN_V2', None, 'Male'],
-        ['CL_SEX_EN_V2', None, 'Female'],
-        ['CL_SEX_EN_V2', None, 'Total']]
+# vals = [['CL_AGE_GROUP_EN_V1', None, '15 - 24'],
+#         ['CL_AGE_GROUP_EN_V1', None, '25 - 29'],
+#         ['CL_AGE_GROUP_EN_V1', None, '30 - 34'],
+#         ['CL_AGE_GROUP_EN_V1', None, '35 - 39'],
+#         ['CL_AGE_GROUP_EN_V1', None, '40 and Above'],
+#         ['CL_AGE_GROUP_EN_V1', None, 'Total'],
+#         ['CL_AGE_GROUP_AR_V1', None, '15 - 24'],
+#         ['CL_AGE_GROUP_AR_V1', None, '25 - 29'],
+#         ['CL_AGE_GROUP_AR_V1', None, '30 - 34'],
+#         ['CL_AGE_GROUP_AR_V1', None, '35 - 39'],
+#         ['CL_AGE_GROUP_AR_V1', None, '40 فـأعلـــى'],
+#         ['CL_AGE_GROUP_AR_V1', None, 'الجملة '],
+#         ['CL_SEX_AR_V1', None, 'ذكور'],
+#         ['CL_SEX_AR_V1', None, 'إناث'],
+#         ['CL_SEX_AR_V1', None, 'الجملة'],
+#         ['CL_SEX_EN_V2', None, 'Male'],
+#         ['CL_SEX_EN_V2', None, 'Female'],
+#         ['CL_SEX_EN_V2', None, 'Total']]
+#
+# ref_dict = pd.DataFrame(vals, columns=['CL_ID', 'ID', 'DESCRIPTION'])
 
-ref_dict = pd.DataFrame(vals, columns=['CL_ID', 'ID', 'DESCRIPTION'])
+ref_dict = db.tamaraPandas(selctedTable=db.ref_dictionary)
 
 # SETUP SAVE TO EXCEL
 
@@ -195,7 +197,7 @@ writer.sheets = {ws.title: ws for ws in book.worksheets}
 rules = ValidationRules()
 
 # GET TABLE FROM DB INTO PANDAS DATAFRAME
-df_input = db.tamaraPandas()
+df_input = db.tamaraPandas(selctedTable=db.relational_db)
 
 rules2 = Table2()
 
