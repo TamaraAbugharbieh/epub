@@ -2,22 +2,20 @@ from ExcelHandler import ExcelHandler
 import Utilities
 import time
 from DataBase import DB
-
+import ExcelToPDF
 
 # TO CALCULATE EXECUTION TIME
 start_time = time.time()
 
-InputFileName = "T22V2.xlsx"
-tablePostFix = '_demodemodemo'
-
+InputFileName = "all.xlsx"
+tablePostFix = 'all'
 
 # TASK 1 READ THE EXCEL FILE:
 
 excelHandler = ExcelHandler(fileName=InputFileName)
 
 db = DB(landing_db = 'landing_db'  , relational_db = 'relational_db' + tablePostFix, s2t_mapping = 's2t_mapping' + tablePostFix, ref_dictionary = 'ref_dictionary' )
-db.createS2TMappingTable()
-db.createRelationalDBTable()
+
 
 lastRow = excelHandler.getMaxRow(sheet='Landing DB') + 1
 
@@ -127,6 +125,8 @@ for rowNumber in range(4, excelHandler.getMaxRow(sheet='Relational DB') + 1):
 
 excelHandler.saveSpreadSheet(fileName=InputFileName)
 
+ExcelToPDF.excelToPDF(batchID=BatchID, fileName=InputFileName)
+
 # db.printDescription()
 # db.printLandingDB()
 # db.printS2t()
@@ -141,12 +141,14 @@ print("SKIPPED ROWS: ", skipedRows)
 # TO CALCULATE EXECUTION TIME
 print("--- Took %s seconds to process ---" % (time.time() - start_time))
 
+
+########################################################################################################################
+
 import pandas as pd
 from ValidationRules import ValidationRules
 from tableChecks2 import Table2
 from openpyxl import load_workbook
 
-########################################################################################################################
 
 vals = [['CL_AGE_GROUP_EN_V1', None, '15 - 24'],
         ['CL_AGE_GROUP_EN_V1', None, '25 - 29'],
@@ -227,7 +229,6 @@ for i in [*input.columns]:
         elif i in ['TIME_PERIOD_M']:
             input[i] = [i.split('-')[1].strip() for i in input[i]]
         else:
-            print()
             input[i] = input[i].str.strip()
     except:
         continue

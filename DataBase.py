@@ -178,6 +178,7 @@ class DB:
                   ' HAS BEEN CREATED')
         except Exception as e:
             if str(e).__contains__('name is already used by an existing object'):
+                # gggg
                 print('TABLE NAME ALREADY EXISTS...')
                 newTableNumber = '_' + str(randrange(0, 10))
                 print('CREATING A NEW TABLE WITH THE FOLLOWING NAME:', str(self.relational_db + newTableNumber))
