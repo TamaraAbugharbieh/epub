@@ -82,40 +82,15 @@ class DB:
 
         print('---------------------ref_dictionary---------------------')
 
-    # def getRowByNumber(self, rowNumber='1'):
-    #     sql = """with cte as (select relational_db.*, ROW_NUMBER() OVER (ORDER BY batch_id) R from relational_db) select * from cte where R ={0}""".format(
-    #         rowNumber)
-    #     print(':::::', sql)
-    #     cursor = self.connection.cursor()
-    #     for each in cursor.execute(sql):
-    #         print(each)
-    #         return each
-    #
-    # def getRowByNumber2(self, rowNumber='1'):
-    #     sql = """SELECT * FROM relational_db"""
-    #     print(':::::', sql)
-    #     cursor = self.connection.cursor()
-    #     index = 1
-    #     for each in cursor.execute(sql):
-    #         print(each)
-    #         if index == rowNumber:
-    #             return each
-    #         index += 1
+    def createDynamicTable(self, tableName , columns):
+        columnsSQL = """"""
+        for column in columns:
+            columnsSQL += """{0} VARCHAR2(4000 CHAR) {1}
+                          """.format(column, ',' if not column == columns[-1] else '')
 
-    def createS2TMappingTable(self):
         sql = """
-      CREATE TABLE EPUBLICATION.{0}
-  ( Sheet_Source VARCHAR2(4000 CHAR),
-    Cell_Source VARCHAR2(4000 CHAR),
-    SHEET_TARGET VARCHAR2(200 CHAR),
-    CELL_TARGET VARCHAR2(200 CHAR),
-    CELL_TYPE VARCHAR2(200 CHAR),
-    DESC_AR VARCHAR2(4000 CHAR),
-    DATA_TYPE VARCHAR2(4000 CHAR),
-    IS_MANDATORY VARCHAR2(200 CHAR),
-    REF_DICTIONARY VARCHAR2(200 CHAR)
-   )
-""".format(self.s2t_mapping)
+              CREATE TABLE EPUBLICATION.{0}
+          ( {1}) """.format(self.s2t_mapping, columnsSQL)
         print(':::::', sql)
         cursor = self.connection.cursor()
         try:
@@ -126,71 +101,11 @@ class DB:
         except Exception as e:
             if str(e).__contains__('name is already used by an existing object'):
                 print('TABLE NAME ALREADY EXISTS...')
-                newTableNumber = '_' + str(randrange(0, 10))
-                print('CREATING A NEW TABLE WITH THE FOLLOWING NAME:', str(self.s2t_mapping + newTableNumber))
-                sql = sql.replace(self.s2t_mapping, self.s2t_mapping + newTableNumber)
-                cursor.execute(sql)
-                self.connection.commit()
-                print(' A NEW TABLE WITH THE FOLLOWING NAME:', str(self.s2t_mapping + newTableNumber),
-                      ' HAS BEEN CREATED')
-                self.s2t_mapping += str(newTableNumber)
-                return str(newTableNumber)
+                return
             else:
                 print(e)
+                return
 
-    def createRelationalDBTable(self):
-        sql = """
-          CREATE TABLE EPUBLICATION.{0}
-      ( PUBLICATION_NAME_AR VARCHAR2(4000 CHAR),
-        PUBLICATION_NAME_EN VARCHAR2(4000 CHAR),
-        PUBLICATION_DATE_AR VARCHAR2(200 CHAR),
-        PUBLICATION_DATE_EN VARCHAR2(200 CHAR),
-        TABLE_ID VARCHAR2(200 CHAR),
-        REP_NAME_AR VARCHAR2(4000 CHAR),
-        REP_NAME_EN VARCHAR2(4000 CHAR),
-        TEM_ID VARCHAR2(200 CHAR),
-        CL_AGE_GROUP_AR_V1 VARCHAR2(200 CHAR),
-        CL_AGE_GROUP_EN_V1 VARCHAR2(200 CHAR),
-        CL_SEX_AR_V1 VARCHAR2(200 CHAR),
-        CL_SEX_EN_V2 VARCHAR2(200 CHAR),
-        OBS_VALUE VARCHAR2(200 CHAR),
-        TIME_PERIOD_Y VARCHAR2(200 CHAR),
-        TIME_PERIOD_M VARCHAR2(200 CHAR),
-        NOTE1_AR VARCHAR2(4000 CHAR),
-        NOTE1_EN VARCHAR2(4000 CHAR),
-        NOTE2_AR VARCHAR2(4000 CHAR),
-        NOTE2_EN VARCHAR2(4000 CHAR),
-        NOTE3_AR VARCHAR2(4000 CHAR),
-        NOTE3_EN VARCHAR2(4000 CHAR),
-        SOURCE_AR VARCHAR2(200 CHAR),
-        SOURCE_EN VARCHAR2(200 CHAR),
-        TIME_STAMP VARCHAR2(200 CHAR),
-        BATCH_ID VARCHAR2(200 CHAR),
-        FREQUENCY VARCHAR2(200 CHAR)
-       )
-    """.format(self.relational_db)
-        print(':::::', sql)
-        cursor = self.connection.cursor()
-        try:
-            cursor.execute(sql)
-            self.connection.commit()
-            print(' A NEW TABLE WITH THE FOLLOWING NAME:', str(self.relational_db),
-                  ' HAS BEEN CREATED')
-        except Exception as e:
-            if str(e).__contains__('name is already used by an existing object'):
-                # gggg
-                print('TABLE NAME ALREADY EXISTS...')
-                newTableNumber = '_' + str(randrange(0, 10))
-                print('CREATING A NEW TABLE WITH THE FOLLOWING NAME:', str(self.relational_db + newTableNumber))
-                sql = sql.replace(self.relational_db, self.relational_db + newTableNumber)
-                cursor.execute(sql)
-                self.connection.commit()
-                print(' A NEW TABLE WITH THE FOLLOWING NAME:', str(self.relational_db + newTableNumber),
-                      ' HAS BEEN CREATED')
-                self.relational_db += str(newTableNumber)
-                return str(newTableNumber)
-            else:
-                print(e)
 
     def insertIntoRef_dictionary(self, DESCRIPTION='', ID='', CL_ID=''):
         sql = """INSERT INTO {3} (DESCRIPTION,ID,CL_ID)
@@ -330,7 +245,7 @@ class DB:
         for record in cursor:
             print('ref_dictionary', record)
 
-    def tamarPandas(self):
+    def tamaraPandas(self):
         SQL = """SELECT * FROM {0}""".format(self.relational_db)
         df_input = pd.read_sql(SQL, con=self.connection)
         return df_input

@@ -7,14 +7,23 @@ import ExcelToPDF
 # TO CALCULATE EXECUTION TIME
 start_time = time.time()
 
-InputFileName = "all.xlsx"
-tablePostFix = 'all'
+InputFileName = "SYB_10_3_V1.xlsx"
+tablePostFix = 'AhmadMwafi'
 
 # TASK 1 READ THE EXCEL FILE:
 
 excelHandler = ExcelHandler(fileName=InputFileName)
 
-db = DB(landing_db = 'landing_db'  , relational_db = 'relational_db' + tablePostFix, s2t_mapping = 's2t_mapping' + tablePostFix, ref_dictionary = 'ref_dictionary' )
+db = DB(landing_db = 'landing_db' + tablePostFix , relational_db = 'relational_db' + tablePostFix, s2t_mapping = 's2t_mapping' + tablePostFix, ref_dictionary = 'ref_dictionary' + tablePostFix )
+s2tColumns = excelHandler.getRowDataFromSheet(sheet='S2T Mapping' , row=1)
+relationalColumns = excelHandler.getRowDataFromSheet(sheet='Relational DB' , row=2)
+refDictionaryColumns = excelHandler.getRowDataFromSheet(sheet='Ref_Dictionary' , row=1)
+landingDBColumns = excelHandler.getRowDataFromSheet(sheet='Landing DB' , row=1)
+
+db.createDynamicTable(tableName=db.s2t_mapping, columns=s2tColumns)
+db.createDynamicTable(tableName=db.relational_db, columns=relationalColumns)
+db.createDynamicTable(tableName=db.landing_db, columns=relationalColumns)
+db.createDynamicTable(tableName=db.ref_dictionary, columns=relationalColumns)
 
 
 lastRow = excelHandler.getMaxRow(sheet='Landing DB') + 1
@@ -24,8 +33,6 @@ currentTime = Utilities.getCurrentTime()
 
 skipedRows = []
 errors = []
-
-
 
 # LOOP THROUGH THE MAP
 for rowNumber in range(2, excelHandler.getMaxRow(sheet='S2T Mapping') + 1):
@@ -78,8 +85,8 @@ for rowNumber in range(2, excelHandler.getMaxRow(sheet='S2T Mapping') + 1):
 
 
 
-        db.insertIntoLandingDB(sheetSource=sheet_source, cellSource=cell_source, cellContent=source_data,
-                               TimeStamp=currentTime, BatchID=BatchID)
+        # db.insertIntoLandingDB(sheetSource=sheet_source, cellSource=cell_source, cellContent=source_data,
+        #                        TimeStamp=currentTime, BatchID=BatchID)
 
     # except Exception as e:
     #     print("ERROR IN ROW#" + str(rowNumber) + " -- " + str(e))
@@ -94,7 +101,6 @@ for rowNumber in range(4, excelHandler.getMaxRow(sheet='Relational DB') + 1):
     excelHandler.writeCell(sheet='Relational DB', cell=str('Z' + str(rowNumber)), value=str(BatchID))
 
     currentRowData = excelHandler.getRowDataFromSheet(sheet='Relational DB', row=rowNumber)
-    print(currentRowData)
     db.insertIntoRelationalDB(currentRowData[0],
                               currentRowData[1],
                               currentRowData[2],
@@ -123,6 +129,10 @@ for rowNumber in range(4, excelHandler.getMaxRow(sheet='Relational DB') + 1):
                               currentRowData[8],
                               )
 
+for rowNumber in range(2, excelHandler.getMaxRow(sheet='Ref_Dictionary') + 1):
+    currentRowData = excelHandler.getRowDataFromSheet(sheet='Ref_Dictionary', row=rowNumber)
+    db.insertIntoRef_dictionary(DESCRIPTION=currentRowData[0], ID=currentRowData[1], CL_ID=currentRowData[2])
+
 excelHandler.saveSpreadSheet(fileName=InputFileName)
 
 ExcelToPDF.excelToPDF(batchID=BatchID, fileName=InputFileName)
@@ -148,6 +158,8 @@ import pandas as pd
 from ValidationRules import ValidationRules
 from tableChecks2 import Table2
 from openpyxl import load_workbook
+
+# TODO: IMPORTS FIRST
 
 
 vals = [['CL_AGE_GROUP_EN_V1', None, '15 - 24'],
@@ -182,12 +194,8 @@ writer.sheets = {ws.title: ws for ws in book.worksheets}
 
 rules = ValidationRules()
 
-########################################################################################################################
-
 # GET TABLE FROM DB INTO PANDAS DATAFRAME
-
-
-df_input = db.tamarPandas()
+df_input = db.tamaraPandas()
 
 rules2 = Table2()
 
@@ -195,12 +203,10 @@ df_fail = pd.DataFrame(columns=[*df_input.columns] + ['isnull', 'wrong type', 'w
 df_pass = pd.DataFrame(columns=df_input.columns)
 
 for column, row in df_input.iterrows():
-
     error_dict = rules2.table_rules(input=row, columns=df_input.columns, lookups=ref_dict)
     if len([1 for x in error_dict if len(error_dict[x]) != 0]) != 0:
         inrow = [*row.values] + [*error_dict.values()]
         df_fail = df_fail.append(pd.DataFrame([inrow], columns=df_fail.columns), ignore_index=True)
-
     else:
         df_pass = df_pass.append(pd.DataFrame([[*row.values]], columns=df_pass.columns), ignore_index=True)
 
@@ -209,8 +215,6 @@ sheetName = 'fail'
 df_fail.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
 sheetName = 'pass'
 df_pass.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
-
-#############################################REPORTING###########################################################
 
 
 input = df_input.assign(Obs_toNumber=pd.to_numeric(df_input['OBS_VALUE'], errors='coerce'))
@@ -223,7 +227,6 @@ for i in [*input.columns]:
     try:
         if i in ['PUBLICATION_DATE_EN']:
             input[i] = pd.to_datetime(input[i])
-
         elif i in ['TIME_PERIOD_Y']:
             input[i] = pd.to_numeric(input[i])
         elif i in ['TIME_PERIOD_M']:
@@ -234,12 +237,10 @@ for i in [*input.columns]:
         continue
 for t in input.itertuples():
     if t.Obs_toNumber != t.Obs_toNumber:
-
         input.at[t.Index, 'Obs_toNumber'] = pd.to_numeric(t.OBS_VALUE[:-1])
 
 
 # GET MIN MAX
-
 temp_list = [input.Obs_toNumber.idxmin(), input.Obs_toNumber.idxmax()]
 min_max = input.iloc[temp_list].sort_values(by='Obs_toNumber')
 
@@ -290,7 +291,7 @@ totals.columns = ['Reported Total', 'Actual Total', 'Reported-Actual']
 
 sheetName = 'total'
 totals.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
-
 writer.save()
+
 
 db.closeConnection()

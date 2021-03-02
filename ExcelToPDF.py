@@ -4,7 +4,7 @@ from datetime import datetime
 from random import randint
 
 
-def excelToPDF(batchID='', fileName='' , sheetsListToConvert = [ 'Target Table' , 'Target Graph' ,'Target PT' ,  'Text'] ):
+def excelToPDF(batchID='', fileName='', sheetsListToConvert=['Target Table', 'Target Graph', 'Target PT', 'Text']):
     #  [4, 6, 7, 8, 9]
     o = win32com.client.Dispatch("Excel.Application")
 
@@ -12,19 +12,23 @@ def excelToPDF(batchID='', fileName='' , sheetsListToConvert = [ 'Target Table' 
 
     directory = os.path.abspath('.')
 
-    wb = o.Workbooks.Open(directory + "/" + fileName)
+    wb = o.Workbooks.Open(directory + "/{0}".format(fileName))
 
-    ws_index_list = sheetsListToConvert  # say you want to print these sheets
+
+    ws_index_list = sheetsListToConvert
 
     counter = 1
-
+    print('===========================SAVING PDF')
     for item in ws_index_list:
-        path_to_pdf = directory + '/Sample{0}_{1}.pdf'.format(batchID, counter)
+        path_to_pdf = directory + '/{0}_{1}.pdf'.format(item,batchID)
         if type(item) == type(''):
-            wb.WorkSheets(item).Select()
-        elif type(item) == type(1):
             wb.sheets(item).Select()
+        elif type(item) == type(1):
+            wb.WorkSheets(item).Select()
         wb.ActiveSheet.ExportAsFixedFormat(0, path_to_pdf)
+        print('SAVING: {0}'.format(path_to_pdf))
         counter += 1
 
     wb.Close()
+
+
