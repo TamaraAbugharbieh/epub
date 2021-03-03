@@ -4,7 +4,7 @@ from datetime import datetime
 from random import randint
 
 
-def excelToPDF(batchID='', fileName='', sheetsListToConvert=['Target Table']):
+def excelToPDF(pdfFileName = '' , fileName='' , sheetsListToConvert=['Target Table', 'Target Graph', 'Target PT', 'Text']):
     #  [4, 6, 7, 8, 9]
     o = win32com.client.Dispatch("Excel.Application")
 
@@ -20,7 +20,7 @@ def excelToPDF(batchID='', fileName='', sheetsListToConvert=['Target Table']):
     counter = 1
     print('===========================SAVING PDF')
     for item in ws_index_list:
-        path_to_pdf = directory + '/{0}_{1}.pdf'.format(item,batchID)
+        path_to_pdf = directory + '/{0}.pdf'.format(pdfFileName)
         if type(item) == type(''):
             wb.sheets(item).Select()
         elif type(item) == type(1):
