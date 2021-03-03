@@ -90,13 +90,13 @@ class DB:
 
         sql = """
               CREATE TABLE EPUBLICATION.{0}
-          ( {1}) """.format(self.s2t_mapping, columnsSQL)
+          ( {1}) """.format(tableName, columnsSQL)
         print(':::::', sql)
         cursor = self.connection.cursor()
         try:
             cursor.execute(sql)
             self.connection.commit()
-            print(' A NEW TABLE WITH THE FOLLOWING NAME:', str(self.s2t_mapping),
+            print(' A NEW TABLE WITH THE FOLLOWING NAME:', str(tableName),
                   ' HAS BEEN CREATED')
         except Exception as e:
             if str(e).__contains__('name is already used by an existing object'):

@@ -7,8 +7,8 @@ import ExcelToPDF
 # TO CALCULATE EXECUTION TIME
 start_time = time.time()
 
-InputFileName = "SYB_10_3_V1.xlsx"
-tablePostFix = 'AhmadMwafi'
+InputFileName = "all.xlsx"
+tablePostFix = 'Yaman121'
 
 # TASK 1 READ THE EXCEL FILE:
 
@@ -23,7 +23,7 @@ landingDBColumns = excelHandler.getRowDataFromSheet(sheet='Landing DB' , row=1)
 db.createDynamicTable(tableName=db.s2t_mapping, columns=s2tColumns)
 db.createDynamicTable(tableName=db.relational_db, columns=relationalColumns)
 db.createDynamicTable(tableName=db.landing_db, columns=relationalColumns)
-db.createDynamicTable(tableName=db.ref_dictionary, columns=relationalColumns)
+db.createDynamicTable(tableName=db.ref_dictionary, columns=refDictionaryColumns)
 
 
 lastRow = excelHandler.getMaxRow(sheet='Landing DB') + 1
@@ -135,7 +135,8 @@ for rowNumber in range(2, excelHandler.getMaxRow(sheet='Ref_Dictionary') + 1):
 
 excelHandler.saveSpreadSheet(fileName=InputFileName)
 
-ExcelToPDF.excelToPDF(batchID=BatchID, fileName=InputFileName)
+pdfFileName = excelHandler.getCellFromSheet(sheet='Cover page', cell='B5')
+ExcelToPDF.excelToPDF(pdfFileName=pdfFileName, fileName=InputFileName)
 
 # db.printDescription()
 # db.printLandingDB()

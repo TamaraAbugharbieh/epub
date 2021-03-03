@@ -4,7 +4,6 @@ from openpyxl import load_workbook
 
 class ExcelHandler:
 
-
     def __init__(self, fileName="testFile.xlsx", dataOnlyFlag=True):
         # TO FIND THE FILE IN THE PREVIOUS LEVEL OR 2 LEVELS BEHIND
         try:
@@ -59,3 +58,4 @@ class ExcelHandler:
 
     def saveSpreadSheet(self, fileName='testFile.xlsx'):
         self.wb.save(filename=fileName)
+
