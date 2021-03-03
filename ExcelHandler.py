@@ -8,8 +8,6 @@ class ExcelHandler:
     def __init__(self, fileName="testFile.xlsx", dataOnlyFlag=True):
         # TO FIND THE FILE IN THE PREVIOUS LEVEL OR 2 LEVELS BEHIND
 
-
-
         try:
             directory = os.path.abspath('.')
         except:
@@ -20,7 +18,7 @@ class ExcelHandler:
 
         # self.wb = load_workbook(filepathRead)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
 
-        self.wb = load_workbook(filepathRead, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
+        self.wb = load_workbook(fileName, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
 
 
 

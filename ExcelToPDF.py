@@ -13,7 +13,7 @@ def excelToPDF(pdfFileName='', fileName='', sheetsListToConvert=['Target Table',
 
         directory = os.path.abspath('.')
 
-        wb = o.Workbooks.Open(directory + "/{0}".format(fileName))
+        wb = o.Workbooks.Open("{0}".format(fileName))
 
         ws_index_list = sheetsListToConvert
 
