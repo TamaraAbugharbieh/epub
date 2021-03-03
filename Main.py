@@ -7,8 +7,8 @@ import ExcelToPDF
 # TO CALCULATE EXECUTION TIME
 start_time = time.time()
 
-InputFileName = "SYB_10_3_V1.xlsx"
-tablePostFix = 'AhmadMwafi'
+InputFileName = "all.xlsx"
+tablePostFix = 'Yaman2'
 
 # TASK 1 READ THE EXCEL FILE:
 
@@ -23,7 +23,7 @@ landingDBColumns = excelHandler.getRowDataFromSheet(sheet='Landing DB' , row=1)
 db.createDynamicTable(tableName=db.s2t_mapping, columns=s2tColumns)
 db.createDynamicTable(tableName=db.relational_db, columns=relationalColumns)
 db.createDynamicTable(tableName=db.landing_db, columns=relationalColumns)
-db.createDynamicTable(tableName=db.ref_dictionary, columns=relationalColumns)
+db.createDynamicTable(tableName=db.ref_dictionary, columns=refDictionaryColumns)
 
 
 lastRow = excelHandler.getMaxRow(sheet='Landing DB') + 1
@@ -161,38 +161,20 @@ from openpyxl import load_workbook
 
 # TODO: IMPORTS FIRST
 
-
-# vals = [['CL_AGE_GROUP_EN_V1', None, '15 - 24'],
-#         ['CL_AGE_GROUP_EN_V1', None, '25 - 29'],
-#         ['CL_AGE_GROUP_EN_V1', None, '30 - 34'],
-#         ['CL_AGE_GROUP_EN_V1', None, '35 - 39'],
-#         ['CL_AGE_GROUP_EN_V1', None, '40 and Above'],
-#         ['CL_AGE_GROUP_EN_V1', None, 'Total'],
-#         ['CL_AGE_GROUP_AR_V1', None, '15 - 24'],
-#         ['CL_AGE_GROUP_AR_V1', None, '25 - 29'],
-#         ['CL_AGE_GROUP_AR_V1', None, '30 - 34'],
-#         ['CL_AGE_GROUP_AR_V1', None, '35 - 39'],
-#         ['CL_AGE_GROUP_AR_V1', None, '40 فـأعلـــى'],
-#         ['CL_AGE_GROUP_AR_V1', None, 'الجملة '],
-#         ['CL_SEX_AR_V1', None, 'ذكور'],
-#         ['CL_SEX_AR_V1', None, 'إناث'],
-#         ['CL_SEX_AR_V1', None, 'الجملة'],
-#         ['CL_SEX_EN_V2', None, 'Male'],
-#         ['CL_SEX_EN_V2', None, 'Female'],
-#         ['CL_SEX_EN_V2', None, 'Total']]
-#
-# ref_dict = pd.DataFrame(vals, columns=['CL_ID', 'ID', 'DESCRIPTION'])
-
 ref_dict = db.tamaraPandas(selctedTable=db.ref_dictionary)
 
 # SETUP SAVE TO EXCEL
 
 fileName = 'Output.xlsx'
 
+# can this be done using ExcelHandler? YES
 book = load_workbook(fileName)
 writer = pd.ExcelWriter(fileName, engine='openpyxl')
 writer.book = book
-writer.sheets = {ws.title: ws for ws in book.worksheets}
+
+excelHandlerForOutput = ExcelHandler(fileName='Output.xlsx')
+excelHandlerForOutput.saveDFtoExcel()
+
 
 rules = ValidationRules()
 
@@ -217,7 +199,6 @@ sheetName = 'fail'
 df_fail.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
 sheetName = 'pass'
 df_pass.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
-
 
 input = df_input.assign(Obs_toNumber=pd.to_numeric(df_input['OBS_VALUE'], errors='coerce'))
 input = input.assign(MONTH=[i.split('-')[1].strip() for i in input['TIME_PERIOD_M']])
@@ -294,6 +275,5 @@ totals.columns = ['Reported Total', 'Actual Total', 'Reported-Actual']
 sheetName = 'total'
 totals.to_excel(writer, sheet_name=sheetName, startrow=writer.sheets[sheetName].max_row, index=False)
 writer.save()
-
 
 db.closeConnection()

@@ -1,9 +1,9 @@
 import os
+import pandas as pd
 from openpyxl import load_workbook
 
 
 class ExcelHandler:
-
 
     def __init__(self, fileName="testFile.xlsx", dataOnlyFlag=True):
         # TO FIND THE FILE IN THE PREVIOUS LEVEL OR 2 LEVELS BEHIND
@@ -18,8 +18,7 @@ class ExcelHandler:
         # self.wb = load_workbook(filepathRead)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
 
         self.wb = load_workbook(fileName, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
-
-
+        self.df = pd.ExcelWriter(fileName, engine='openpyxl')
 
     # RETURNS ALL CELLS IN A GIVEN COLUMN
     def getColumnDataFromSheet(self, sheet="S2T Mapping", column=1):
@@ -59,3 +58,6 @@ class ExcelHandler:
 
     def saveSpreadSheet(self, fileName='testFile.xlsx'):
         self.wb.save(filename=fileName)
+
+    def saveDFtoExcel(self):
+        self.df.sheets = {ws.title: ws for ws in self.wb.worksheets}

@@ -4,7 +4,7 @@ from datetime import datetime
 from random import randint
 
 
-def excelToPDF(batchID='', fileName='', sheetsListToConvert=['Target Table', 'Target Graph', 'Target PT', 'Text']):
+def excelToPDF(batchID='', fileName='', sheetsListToConvert=['Target Table']):
     #  [4, 6, 7, 8, 9]
     o = win32com.client.Dispatch("Excel.Application")
 
