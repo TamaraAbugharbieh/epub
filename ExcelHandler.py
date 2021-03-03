@@ -16,9 +16,12 @@ class ExcelHandler:
         filepathRead = filepathRead + fileName  # COMBINE THE FILE PATH WITH THE FILE NAME
 
         # self.wb = load_workbook(filepathRead)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
-
         self.wb = load_workbook(fileName, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
-        self.df = pd.ExcelWriter(fileName, engine='openpyxl')
+
+        # TO EXPORT DATA FROM DATA FRAME TO EXCEL OUTPUT
+        self.writer = pd.ExcelWriter(fileName, engine='openpyxl')  # TO WRITE FROM DATAFRAME SOURCE TO EXCEL OUTPUT
+        self.writer.book = self.wb
+        self.writer.sheets = {ws.title: ws for ws in self.wb.worksheets} # CREATE A DICTIONARY OF EXCEL SHEETS
 
     # RETURNS ALL CELLS IN A GIVEN COLUMN
     def getColumnDataFromSheet(self, sheet="S2T Mapping", column=1):
@@ -59,5 +62,8 @@ class ExcelHandler:
     def saveSpreadSheet(self, fileName='testFile.xlsx'):
         self.wb.save(filename=fileName)
 
-    def saveDFtoExcel(self):
-        self.df.sheets = {ws.title: ws for ws in self.wb.worksheets}
+    def saveDFtoExcel(self, sheet_name, data_frame):
+        data_frame.to_excel(self.writer, sheet_name=sheet_name, startrow=self.writer.sheets[sheet_name].max_row, index=False)
+
+    def closeWriter(self):
+        self.writer.save()
