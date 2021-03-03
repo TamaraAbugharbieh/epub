@@ -1,3 +1,4 @@
+import glob
 import os
 from openpyxl import load_workbook
 
@@ -6,17 +7,20 @@ class ExcelHandler:
 
     def __init__(self, fileName="testFile.xlsx", dataOnlyFlag=True):
         # TO FIND THE FILE IN THE PREVIOUS LEVEL OR 2 LEVELS BEHIND
+
+
+
         try:
             directory = os.path.abspath('.')
         except:
             directory = os.path.abspath('..')
 
-        filepathRead = directory + "\\Files\\"  # NAVIGATE TO THE 'Files' FOLDER WHICH CONTAINS THE file.xlsx
+        filepathRead = directory + "\\Input\\"  # NAVIGATE TO THE 'Files' FOLDER WHICH CONTAINS THE file.xlsx
         filepathRead = filepathRead + fileName  # COMBINE THE FILE PATH WITH THE FILE NAME
 
         # self.wb = load_workbook(filepathRead)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
 
-        self.wb = load_workbook(fileName, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
+        self.wb = load_workbook(filepathRead, data_only=dataOnlyFlag)  # LOAD THE EXCEL FILE AND STORE IT IN THE wb OBJECT
 
 
 
